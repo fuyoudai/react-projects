@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 import { adminRoutes } from '../../routes'
 import Frame from '../../components/Frame/Index'
+import {isLogined} from '../../utils/auth'
 
 class Home extends React.Component {
   constructor(props) {
@@ -13,7 +14,7 @@ class Home extends React.Component {
     this.state = {}
   }
   render() {
-    return (
+    return isLogined() ? (
       <Frame>
         <Switch>
           {adminRoutes.map(route => {
@@ -28,9 +29,12 @@ class Home extends React.Component {
               />
             )
           })}
+          <Redirect to={adminRoutes[0].path} from="/admin" />
           <Redirect to="/404" />
         </Switch>
       </Frame>
+    ) : (
+      <Redirect to="/login" />
     )
   }
 }

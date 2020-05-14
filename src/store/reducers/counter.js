@@ -1,4 +1,4 @@
-import * as actions from '../constants'
+import * as actions from '../../constants'
 const counter = (state = 0, action) => {
   switch (action.type) {
     case actions.ADD:
