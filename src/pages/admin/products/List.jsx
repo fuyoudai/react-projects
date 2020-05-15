@@ -1,25 +1,35 @@
 import React,{useEffect, useState} from 'react'
+import { connect } from 'react-redux'
 import { Card, Table, Button, Popconfirm, message } from 'antd'
+import { loadProduct } from '../../../store/actions/product'
 import { listApi, delOne, modifyOne } from '../../../services/products'
 import { serverUrl } from '../../../utils/config'
 
 function List(props) {
-  const [dataSource, setDataSource] = useState([])
-  const [total,setTotal] = useState(0)
-  const [currentPage,setCurrentPage] = useState(0)
+  // const [dataSource, setDataSource] = useState([])
+  // const [total,setTotal] = useState(0)
+  // const [currentPage,setCurrentPage] = useState(0)
+
+  const { lists, page, total } = props
+
   useEffect(() => {
-    listApi().then(res => {
-      console.log(res,"list")
-      setDataSource(res.products)
-      setTotal(res.totalCount)
-    })
+    props.dispatch(
+      loadProduct({
+        page:1
+      })
+    )
+    // listApi().then(res => {
+    //   console.log(res,"list")
+    //   setDataSource(res.products)
+    //   setTotal(res.totalCount)
+    // })
   }, [])
-  const loadData = (page) => {
-    listApi(page).then(res => {
-      setDataSource(res.products)
-      setTotal(res.totalCount)
-      setCurrentPage(page)
-    })
+  const loadData = () => {
+    props.dispatch(
+      loadProduct({
+        page
+      })
+    )
   }
   const columns = [
     {
@@ -63,7 +73,7 @@ function List(props) {
               onConfirm={() => {
                 delOne(record._id).then(res => {
                   message.success('删除成功')
-                  loadData(currentPage);
+                  loadData();
                 }).catch(err =>{
                   message.error('删除失败')
                 })
@@ -75,7 +85,7 @@ function List(props) {
               size="small"
               onClick={()=>{
                 modifyOne(record._id, {onSale: !record.onSale}).then(res => {
-                  loadData(currentPage);
+                  loadData();
                 })
               }}
             >
@@ -100,10 +110,10 @@ function List(props) {
     >
       <Table 
         rowKey="_id"
-        pagination={{total,defaultPageSize:2,onChange:loadData}} 
-        columns={columns} bordered dataSource={dataSource} />
+        pagination={{total,defaultPageSize:2,onChange:page => props.dispatch(loadProduct({page}))}} 
+        columns={columns} bordered dataSource={lists} />
     </Card>
   )
 }
 
-export default List
+export default connect(state=>state.product)(List)
